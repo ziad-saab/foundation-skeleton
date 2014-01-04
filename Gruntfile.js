@@ -6,12 +6,10 @@ module.exports = function(grunt) {
     requirejs: {
       compile: {
         options: {
-          appDir: "src/",
-          baseUrl: "assets/js",
+          baseUrl: "src/assets/js",
           mainConfigFile: "src/assets/js/app.js",
-          dir: "dist",
+          dir: "dist/assets/js",
           skipDirOptimize: true,
-          optimizeCss: "none",
           name: "app",
           uglify: {
             no_mangle: false
@@ -41,12 +39,34 @@ module.exports = function(grunt) {
           watch: true
         }
       }
+    },
+    copy: {
+      dist: {
+        expand: true,
+        cwd: 'src/',
+        src: [
+          '**',
+          '!assets/config.rb',
+          '!assets/.sass-cache/**',
+          '!assets/css/**',
+          '!assets/scss/**',
+          '!assets/js/vendors/**',
+          'assets/js/vendors/foundation/vendor/custom.modernizr.js'
+        ],
+        dest: 'dist/'
+      }
+    },
+    clean: {
+      dist: ['dist'],
+      rjs: ['dist/assets/js/vendors', 'dist/assets/js/build.txt']
     }
   });
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-compass');
+  grunt.loadNpmTasks('grunt-contrib-clean');
+  grunt.loadNpmTasks('grunt-contrib-copy');
   
-  grunt.registerTask('build', ['requirejs', 'uglify', 'compass:dist']);
+  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'uglify', 'compass:dist']);
 };
