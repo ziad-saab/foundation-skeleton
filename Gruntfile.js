@@ -3,6 +3,20 @@ module.exports = function(grunt) {
   // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    exec: {
+      npm_install: 'npm install',
+      bower_install: 'bower install',
+      jsx_watch: './node_modules/.bin/jsx -x jsx --watch src/assets/jsx src/assets/js/jsx',
+      jsx_compile: './node_modules/.bin/jsx -x jsx src/assets/jsx dist/assets/js/jsx'
+    },
+    concurrent: {
+      dev: {
+        options: {
+          logConcurrentOutput: true
+        },
+        tasks: ['compass:dev', 'exec:jsx_watch']
+      }
+    },
     requirejs: {
       compile: {
         options: {
@@ -68,6 +82,10 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  
-  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'uglify', 'compass:dist']);
+  grunt.loadNpmTasks('grunt-exec');
+  grunt.loadNpmTasks('grunt-concurrent');
+
+  grunt.registerTask('install', ['exec:npm_install', 'exec:bower_install']);
+  grunt.registerTask('dev', ['concurrent:dev']);
+  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'exec:jsx_compile', 'uglify', 'compass:dist']);
 };

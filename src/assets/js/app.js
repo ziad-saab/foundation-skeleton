@@ -1,7 +1,8 @@
 requirejs.config({
   paths: {
-    jquery: 'vendors/jquery/jquery',
-    foundation: 'vendors/foundation/foundation'
+    jquery: 'vendors/jquery/dist/jquery',
+    foundation: 'vendors/foundation/foundation',
+    react: 'vendors/react/react'
   },
   shim: {
     'foundation/foundation': ['jquery']

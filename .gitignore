@@ -2,3 +2,5 @@ node_modules
 bower_components
 dist
 www
+src/assets/js/jsx
+src/assets/css
