@@ -1,9 +1,8 @@
 ```
 git clone ...
-bower install
-npm install
+grunt install
 ln -s src www # if testing from a web server
-grunt compass:dev
+grunt dev
 ```
 dev dev dev
 ```
