@@ -65,7 +65,6 @@ module.exports = function(grunt) {
           '!assets/css/**',
           '!assets/scss/**',
           '!assets/js/app.js',
-          '!assets/js/vendors/**',
           'assets/js/vendors/foundation/vendor/custom.modernizr.js'
         ],
         dest: 'dist/'
