@@ -12,7 +12,13 @@ module.exports = function(grunt) {
         options: {
           logConcurrentOutput: true
         },
-        tasks: ['compass:dev', 'exec:jsx_watch']
+        tasks: ['watch:sass', 'exec:jsx_watch']
+      }
+    },
+    watch: {
+      sass: {
+        files: 'src/assets/scss/**/*.scss',
+        tasks: ['sass:dev']
       }
     },
     requirejs: {
@@ -36,19 +42,32 @@ module.exports = function(grunt) {
         }
       }
     },
-    compass: {
+    sass: {
       dist: {
+        files: [{
+          expand: true,
+          cwd: 'src/assets/scss',
+          src: ['*.scss'],
+          dest: 'dist/assets/css',
+          ext: '.css'
+        }],
         options: {
-          config: 'src/assets/config.rb',
-          outputStyle: 'compressed',
-          cssDir: 'dist/assets/css',
-          sassDir: 'src/assets/scss'
+          style: 'compressed'
         }
       },
       dev: {
+        files: [{
+          expand: true,
+          cwd: 'src/assets/scss',
+          src: ['*.scss'],
+          dest: 'src/assets/css',
+          ext: '.css'
+          
+        }],
         options: {
-          basePath: 'src/assets',
-          watch: true
+          style: 'nested',
+          quiet: true,
+          lineNumbers: true
         }
       }
     },
@@ -63,6 +82,7 @@ module.exports = function(grunt) {
           '!assets/css/**',
           '!assets/scss/**',
           '!assets/js/app.js',
+          '!assets/jsx/**',
           'assets/js/vendors/foundation/vendor/custom.modernizr.js'
         ],
         dest: 'dist/'
@@ -76,13 +96,13 @@ module.exports = function(grunt) {
 
   grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
-  grunt.loadNpmTasks('grunt-contrib-compass');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-concurrent');
+  grunt.loadNpmTasks('grunt-contrib-sass');
+  grunt.loadNpmTasks('grunt-contrib-watch');
 
-  grunt.registerTask('install', ['exec:npm_install', 'exec:bower_install']);
   grunt.registerTask('dev', ['concurrent:dev']);
-  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'exec:jsx_compile', 'uglify', 'compass:dist']);
+  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'exec:jsx_compile', 'uglify', 'sass:dist']);
 };
