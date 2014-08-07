@@ -4,8 +4,6 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     exec: {
-      npm_install: 'npm install',
-      bower_install: 'bower install',
       jsx_watch: './node_modules/.bin/jsx -x jsx --watch src/assets/jsx src/assets/js/jsx',
       jsx_compile: './node_modules/.bin/jsx -x jsx src/assets/jsx dist/assets/js/jsx'
     },

@@ -4,6 +4,9 @@
   "description": "Zurb Foundation 5 skeleton",
   "author": "Ziad Saab",
   "license": "MIT",
+  "scripts": {
+    "postinstall": "bower install"
+  },
   "devDependencies": {
     "grunt": "~0.4.2",
     "grunt-contrib-requirejs": "~0.4.1",
