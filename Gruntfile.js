@@ -5,7 +5,7 @@ module.exports = function(grunt) {
     pkg: grunt.file.readJSON('package.json'),
     exec: {
       jsx_watch: './node_modules/.bin/jsx -x jsx --watch src/assets/jsx src/assets/js/jsx',
-      jsx_compile: './node_modules/.bin/jsx -x jsx src/assets/jsx dist/assets/js/jsx'
+      jsx_compile: './node_modules/.bin/jsx -x jsx --no-cache-dir src/assets/jsx dist/assets/js/jsx'
     },
     concurrent: {
       dev: {
