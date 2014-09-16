@@ -1,45 +1,94 @@
+var webpack = require('webpack');
 module.exports = function(grunt) {
-
-  // Project configuration.
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
-    exec: {
-      jsx_watch: './node_modules/.bin/jsx -x jsx --watch src/assets/jsx src/assets/js/jsx',
-      jsx_compile: './node_modules/.bin/jsx -x jsx --no-cache-dir src/assets/jsx dist/assets/js/jsx'
-    },
     concurrent: {
       dev: {
         options: {
           logConcurrentOutput: true
         },
-        tasks: ['watch:sass', 'exec:jsx_watch']
+        tasks: ['watch:sass', 'webpack:dev']
+      }
+    },
+    webpack: {
+      dev: {
+        watch: true,
+        keepalive: true,
+        failOnError: false,
+        entry: __dirname + '/src/assets/js/app.js',
+        output: {
+          path: __dirname + '/src/assets/js',
+          filename: 'app-bundle.js'
+        },
+        resolve: {
+          extensions: ['', '.js', '.jsx'],
+          modulesDirectories: ['web_modules','node_modules','bower_components', __dirname + '/src/assets/js'],
+          alias: {
+            foundation: 'foundation/js/foundation'
+          }
+        },
+        plugins: [
+          new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+          })
+        ],
+        module: {
+          loaders: [
+            {
+              test: /\.jsx?$/,
+              loader: 'jsx-loader?insertPragma=React.DOM'
+            }
+          ]
+        },
+        devtool: '#source-map'
+      },
+      dist: {
+        entry: __dirname + '/src/assets/js/app.js',
+        output: {
+          path: __dirname + '/src/assets/js',
+          filename: 'app-bundle.js'
+        },
+        resolve: {
+          extensions: ['', '.js', '.jsx'],
+          modulesDirectories: ['web_modules','node_modules','bower_components', __dirname + '/src/assets/js'],
+          alias: {
+            foundation: 'foundation/js/foundation'
+          }
+        },
+        plugins: [
+          new webpack.ProvidePlugin({
+            $: 'jquery',
+            jQuery: 'jquery'
+          })
+        ],
+        module: {
+          loaders: [
+            {
+              test: /\.jsx?$/,
+              loader: 'jsx-loader?insertPragma=React.DOM'
+            }
+          ]
+        }
+      }
+    },
+    modernizr: {
+      dist: {
+        devFile: 'src/assets/js/modernizr.js',
+        outputFile: 'dist/assets/js/modernizr.js',
+        files: {
+          src: [
+            'src/**'
+          ]
+        },
+        tests: ['prefixed'] //hack
       }
     },
     watch: {
       sass: {
         files: 'src/assets/scss/**/*.scss',
-        tasks: ['sass:dev']
-      }
-    },
-    requirejs: {
-      compile: {
-        options: {
-          baseUrl: "src/assets/js",
-          mainConfigFile: "src/assets/js/app.js",
-          dir: "dist/assets/js",
-          skipDirOptimize: true,
-          name: "app",
-          uglify: {
-            no_mangle: false
-          }
-        }
-      }
-    },
-    uglify: {
-      dist: {
-        files: {
-          'dist/assets/js/vendors/requirejs/require.js': 'src/assets/js/vendors/requirejs/require.js'
-        }
+        tasks: ['sass:dev'],
+        options: {atBegin: true}
       }
     },
     sass: {
@@ -47,7 +96,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'src/assets/scss',
-          src: ['*.scss'],
+          src: ['**/*.scss'],
           dest: 'dist/assets/css',
           ext: '.css'
         }],
@@ -59,7 +108,7 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           cwd: 'src/assets/scss',
-          src: ['*.scss'],
+          src: ['**/*.scss'],
           dest: 'src/assets/css',
           ext: '.css'
           
@@ -77,32 +126,43 @@ module.exports = function(grunt) {
         cwd: 'src/',
         src: [
           '**',
-          '!assets/config.rb',
-          '!assets/.sass-cache/**',
+          '!assets/.sass-cache/',
           '!assets/css/**',
           '!assets/scss/**',
-          '!assets/js/app.js',
-          '!assets/jsx/**',
-          'assets/js/vendors/foundation/vendor/custom.modernizr.js'
+          '!assets/js/**'
         ],
         dest: 'dist/'
       }
     },
+    uglify: {
+      app: {
+        files: {
+          'dist/assets/js/app-bundle.js': 'src/assets/js/app-bundle.js'
+        }
+      }
+    },
+    'gh-pages': {
+      options: {
+        base: 'dist'
+      },
+      src: ['**']
+    },
     clean: {
-      dist: ['dist'],
-      rjs: ['dist/assets/js/vendors', 'dist/assets/js/build.txt']
+      dist: ['dist']
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-requirejs');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-clean');
   grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-exec');
   grunt.loadNpmTasks('grunt-concurrent');
   grunt.loadNpmTasks('grunt-contrib-sass');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-webpack');
+  grunt.loadNpmTasks('grunt-modernizr');
+  grunt.loadNpmTasks('grunt-gh-pages');
 
   grunt.registerTask('dev', ['concurrent:dev']);
-  grunt.registerTask('build', ['clean:dist', 'requirejs', 'clean:rjs', 'copy:dist', 'exec:jsx_compile', 'uglify', 'sass:dist']);
+  grunt.registerTask('build', ['clean:dist', 'copy:dist', 'webpack:dist', 'uglify:app', 'modernizr:dist', 'sass:dist']);
+  grunt.registerTask('deploy', ['build', 'gh-pages']);
 };
